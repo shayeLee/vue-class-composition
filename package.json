@@ -1,6 +1,6 @@
 {
   "name": "vue-class-composition",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "index.js",
   "module": "esm/vue-class-composition.js",
   "types": "esm/index.d.ts",
