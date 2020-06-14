@@ -1,0 +1,34 @@
+{
+  "name": "vue-class-composition",
+  "version": "0.0.1",
+  "main": "index.js",
+  "module": "esm/vue-class-composition.js",
+  "types": "esm/index.d.ts",
+  "repository": "git@github.com:shayeLee/vue-class-composition.git",
+  "author": "shayeLee <shaye_web@163.com>",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rimraf lib esm umd",
+    "start": "yarn run clean && rollup --sourcemap -c rollup.config.js --watch",
+    "build": "yarn run clean && rollup -c scripts/build.js"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "rollup": "^2.15.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-typescript2": "^0.27.1",
+    "typescript": "^3.9.5"
+  },
+  "peerDependencies": {
+    "vue": "^2.6.11"
+  },
+  "files": [
+    "lib",
+    "esm",
+    "umd",
+    "package.json",
+    "README.md"
+  ]
+}
