@@ -1,5 +1,4 @@
 import { isObject, isArray } from './utils';
-import Watcher from './watcher'
 
 let __$reactiveIns = [];
 let __$targetVM = null;
@@ -7,23 +6,19 @@ let __$Vue = null;
 
 export class Reactive {
   $target = null;
-  $deps: {};
-  $watcher: Watcher = null;
-  _targetComputed = '';
-  $computedKeys = [];
-  $computeHandles = {};
-  $computeDeps = {};
+  _watch = {};
+  _computed = {};
 
-  constructor(deps?: object) {
-    this.$initMethods();
-    this.$watcher = new Watcher();
-    this.$deps = deps;
+  constructor(record: boolean = true) {
+    this.$initMethods(record);
   }
 
-  $initMethods() {
-    // @ts-ignore
-    this.$target = __$targetVM;
-    __$reactiveIns.push(this);
+  $initMethods(record: boolean = true) {
+    if (record) {
+      this.$target = __$targetVM;
+      __$reactiveIns.push(this);
+    }
+
     // @ts-ignore
     const protoKeys = Object.getOwnPropertyNames(this.constructor.prototype).concat(Object.keys(this));
     protoKeys.forEach(key => {
@@ -34,7 +29,6 @@ export class Reactive {
         key === '$set' ||
         key === '$delete' ||
         key === '$watch' ||
-        key === '$initComputed' ||
         key === '$computed'
       ) return;
       const isProtoMethod = this.constructor.prototype[key] instanceof Function;
@@ -58,52 +52,32 @@ export class Reactive {
     const reactiveIns = this;
     const $vm = this.$target;
     const $state = {};
-    Object.keys(reactiveIns).concat(this.$computedKeys).forEach(function (key) {
+    Object.keys(reactiveIns).forEach(function (key) {
       if (
         (reactiveIns[key] instanceof Function) ||
         key === '$target' ||
-        key === '$watcher' ||
-        key === '$computeHandles' ||
-        key === '_targetComputed' ||
-        key === '$computeDeps' ||
-        key === '$computedKeys' ||
-        key === '$deps' ||
         key.startsWith('_')
       ) return;
 
       $state[key] = reactiveIns[key];
       Object.defineProperty(reactiveIns, key, {
         get() {
-          if (this._targetComputed) {
-            this.$computeDeps[this._targetComputed] = this.$computeDeps[this._targetComputed] || [];
-            this.$computeDeps[this._targetComputed].push(key);
-          }
           if ($vm[key] === undefined) return $state[key];
           return $vm[key];
         },
         set(val) {
-          let newVal, oldVal;
+          let newVal;
           if (isObject(val)) {
             newVal = __$Vue.observable(val);
-            oldVal = { ...$state[key] };
           } else if (isArray(val)) {
             newVal = __$Vue.observable(val);
-            oldVal = [...$state[key]];
           } else {
             newVal = val;
-            oldVal = $state[key];
           }
-          // Promise.resolve().then(() => reactiveIns.$watcher.evaluate(reactiveIns, key, newVal, oldVal));
           $state[key] = newVal;
           $vm[key] = newVal;
         }
       });
-    });
-  }
-
-  $initComputed() {
-    Object.keys(this.$computeHandles).forEach(key => {
-      if (this.$computeHandles[key] instanceof Function) this.$computeHandles[key].call(this);
     });
   }
 
@@ -115,45 +89,46 @@ export class Reactive {
     return __$Vue.delete(target, key);
   }
 
-  $watch(property: string, cb: Function) {
-    this.$watcher.addDep(property, cb);
+  $watch(key: string, watchHandler: Function | { handler: Function, deep?: boolean, immediate?: boolean }) {
+    const self = this;
+    if (watchHandler instanceof Function) {
+      this._watch[key] = function() {
+        watchHandler.apply(self, arguments);
+      }
+    } else if (isObject(watchHandler)) {
+      const { handler } = watchHandler;
+      if (handler instanceof Function) {
+        watchHandler.handler = function() {
+          handler.apply(self, arguments);
+        }
+      }
+      this._watch[key] = watchHandler;
+    }
   }
 
-  $computed(property: string, _cb: Function) {
-    const _computed = { value: undefined };
-    this.$computedKeys.push(property);
+  $computed(key: string, computedHandler: Function) {
     const self = this;
-    Object.defineProperty(_computed, 'value', {
-      set(val) {
-        self[property] = val;
-        self.$target.$options.data[property] = val;
+    if (computedHandler instanceof Function) {
+      this._computed[key] = function() {
+        return computedHandler.apply(self, arguments);
       }
-    });
-    this.$computeHandles[property] = function () {
-      const cb = _cb;
-      this._targetComputed = property;
-      _computed.value = cb.call(this);
-      this._targetComputed = '';
-      if (isArray(this.$computeDeps[property])) {
-        const deps = this.$computeDeps[property];
-        deps.forEach(name => {
-          this.$watch(name, function () {
-            this[property] = cb.call(this);
-          });
-        })
-      }
+      Object.defineProperty(self, key, {
+        get() {
+          return self.$target[key]
+        }
+      })
     }
   }
 
   static from(childFn) {
     function Reactive$$() {
-      const reactive = new Reactive();
+      const reactive = new Reactive(false);
       Object.keys(reactive).forEach(key => {
         if (reactive[key] instanceof Function) return;
         this[key] = reactive[key];
       });
       childFn.apply(this, arguments);
-      reactive.$initMethods.call(this);
+      reactive.$initMethods.call(this, true);
     }
 
     const protoKeys = Object.getOwnPropertyNames(Reactive.prototype);
@@ -178,6 +153,8 @@ export const reactiveInstall = {
         const $options = $vm.$options;
         // @ts-ignore
         if (isArray($options.setup) && $options.setup.length > 0) {
+
+          // 如果data选项是函数先执行拿到数据结构
           let data = {};
           if (isObject($options.data)) {
             data = $options.data;
@@ -188,8 +165,11 @@ export const reactiveInstall = {
           $options.data = data;
 
           __$targetVM = $vm;
+
           // @ts-ignore
           $options.setup.forEach(fn => {
+
+            // 获取组件属性传入setup函数
             const propsData = {};
             if (isObject($options.props)) {
               Object.keys($options.props).forEach(key => {
@@ -201,18 +181,25 @@ export const reactiveInstall = {
                 });
               })
             }
+
             const props = fn(propsData, $vm);
             Object.keys(props).forEach(key => {
               if (props[key] instanceof Function) {
                 $vm[key] = props[key];
               } else {
+                // 新增data数据
                 $options.data[key] = props[key];
               }
             });
           });
           __$reactiveIns.forEach(function (reactiveIns) {
             reactiveIns.$initData();
-            reactiveIns.$initComputed();
+            // 合并computed选项
+            $options.computed = $options.computed || {};
+            if (isObject(reactiveIns._computed)) $options.computed = Object.assign($options.computed, reactiveIns._computed);
+            // 合并watch选项
+            $options.watch = $options.watch || {};
+            if (isObject(reactiveIns._watch)) $options.watch = Object.assign($options.watch, reactiveIns._watch);
           });
           __$reactiveIns = [];
           __$targetVM = null;
