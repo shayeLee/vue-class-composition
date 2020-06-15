@@ -13,6 +13,7 @@
     "build": "yarn run clean && rollup -c scripts/build.js"
   },
   "devDependencies": {
+    "cz-conventional-changelog": "^3.2.0",
     "rimraf": "^3.0.2",
     "rollup": "^2.15.0",
     "rollup-plugin-commonjs": "^10.1.0",
@@ -30,5 +31,10 @@
     "umd",
     "package.json",
     "README.md"
-  ]
+  ],
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }

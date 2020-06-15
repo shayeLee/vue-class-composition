@@ -14,7 +14,7 @@ export class Reactive {
   $computeHandles = {};
   $computeDeps = {};
 
-  constructor(deps) {
+  constructor(deps?: object) {
     this.$initMethods();
     this.$watcher = new Watcher();
     this.$deps = deps;
@@ -24,8 +24,9 @@ export class Reactive {
     // @ts-ignore
     this.$target = __$targetVM;
     __$reactiveIns.push(this);
-    const proto = Object.getOwnPropertyNames(this.constructor.prototype);
-    proto.forEach(key => {
+    // @ts-ignore
+    const protoKeys = Object.getOwnPropertyNames(this.constructor.prototype).concat(Object.keys(this));
+    protoKeys.forEach(key => {
       if (
         key === 'constructor' ||
         key === '$initMethods' ||
@@ -36,9 +37,15 @@ export class Reactive {
         key === '$initComputed' ||
         key === '$computed'
       ) return;
-      if ((this.constructor.prototype[key] instanceof Function)) {
-        const method = (this.constructor.prototype[key] instanceof Function) ? this.constructor.prototype[key] : null;
-        if (method === null) return;
+      const isProtoMethod = this.constructor.prototype[key] instanceof Function;
+      const isMethod = this[key] instanceof Function;
+      if (isProtoMethod || isMethod) {
+        let method;
+        if (isMethod) {
+          method = this[key];
+        } else if (isProtoMethod && !isMethod) {
+          method = this.constructor.prototype[key];
+        }
         const self = this;
         this[key] = function () {
           return method.apply(self, arguments);
@@ -86,7 +93,7 @@ export class Reactive {
             newVal = val;
             oldVal = $state[key];
           }
-          Promise.resolve().then(() => reactiveIns.$watcher.evaluate(reactiveIns, key, newVal, oldVal));
+          // Promise.resolve().then(() => reactiveIns.$watcher.evaluate(reactiveIns, key, newVal, oldVal));
           $state[key] = newVal;
           $vm[key] = newVal;
         }
@@ -130,12 +137,32 @@ export class Reactive {
       if (isArray(this.$computeDeps[property])) {
         const deps = this.$computeDeps[property];
         deps.forEach(name => {
-          this.$watch(name, function() {
+          this.$watch(name, function () {
             this[property] = cb.call(this);
           });
         })
       }
     }
+  }
+
+  static from(childFn) {
+    function Reactive$$() {
+      const reactive = new Reactive();
+      Object.keys(reactive).forEach(key => {
+        if (reactive[key] instanceof Function) return;
+        this[key] = reactive[key];
+      });
+      childFn.apply(this, arguments);
+      reactive.$initMethods.call(this);
+    }
+
+    const protoKeys = Object.getOwnPropertyNames(Reactive.prototype);
+    protoKeys.forEach(key => {
+      if (key === 'constructor') return;
+      if (Reactive.prototype[key] instanceof Function) Reactive$$.prototype[key] = Reactive.prototype[key];
+    })
+
+    return Reactive$$;
   }
 }
 
