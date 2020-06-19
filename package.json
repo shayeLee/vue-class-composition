@@ -1,7 +1,7 @@
 {
   "name": "vue-class-composition",
   "version": "0.0.4",
-  "main": "index.js",
+  "main": "lib/vue-class-composition.js",
   "module": "esm/vue-class-composition.js",
   "types": "esm/index.d.ts",
   "repository": "git@github.com:shayeLee/vue-class-composition.git",
@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "rimraf lib esm umd",
     "start": "yarn run clean && rollup --sourcemap -c rollup.config.js --watch",
-    "build": "yarn run clean && rollup -c scripts/build.js"
+    "build": "yarn run clean && rollup -c rollup.config.js"
   },
   "devDependencies": {
     "cz-conventional-changelog": "^3.2.0",

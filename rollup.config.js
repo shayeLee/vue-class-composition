@@ -6,11 +6,23 @@ const extensions = [".js", ".ts"];
 
 export default {
   input: 'src/index.ts',
-  output: {
-    file: 'esm/vue-class-composition.js',
-    format: 'esm',
-    name: 'vueClassComposition'
-  },
+  output: [
+    {
+      file: 'esm/vue-class-composition.js',
+      format: 'esm',
+      name: 'vueClassComposition'
+    },
+    {
+      file: 'lib/vue-class-composition.js',
+      format: 'cjs',
+      name: 'vueClassComposition'
+    },
+    {
+      file: 'umd/vue-class-composition.js',
+      format: 'umd',
+      name: 'vueClassComposition'
+    }
+  ],
   plugins: [
     json(),
     typescript(),
