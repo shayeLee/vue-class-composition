@@ -212,6 +212,8 @@ export const reactiveInstall = {
 // @ts-ignore
 if (window.Vue) {
   // @ts-ignore
-  window.Vue.use(reactiveInstall)
+  window.Vue.use(reactiveInstall);
+  // @ts-ignore
+  window.Reactive = Reactive;
 }
 
