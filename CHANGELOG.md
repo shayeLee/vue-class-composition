@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.7](https://github.com/shayeLee/vue-class-composition/compare/v0.0.6...v0.0.7) (2020-06-23)
+
+
+### Bug Fixes
+
+* window.Reactive ([327d6fb](https://github.com/shayeLee/vue-class-composition/commit/327d6fb4ffb8a2ffd226d747d43f347039d17c27))
+
 ### [0.0.6](https://github.com/shayeLee/vue-class-composition/compare/v0.0.5...v0.0.6) (2020-06-23)
 
 
