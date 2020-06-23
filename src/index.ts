@@ -208,3 +208,10 @@ export const reactiveInstall = {
     });
   }
 }
+
+// @ts-ignore
+if (window.Vue) {
+  // @ts-ignore
+  window.Vue.use(reactiveInstall)
+}
+
