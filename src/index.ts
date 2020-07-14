@@ -8,6 +8,7 @@ export class Reactive {
   $target = null;
   _watch = {};
   _computed = {};
+  _provide = {};
 
   constructor(record: boolean = true) {
     this.$initMethods(record);
@@ -120,6 +121,10 @@ export class Reactive {
     }
   }
 
+  $registerProvide(name) {
+    this._provide[name] = this;
+  }
+
   static from(childFn) {
     function Reactive$$() {
       const reactive = new Reactive(false);
@@ -200,6 +205,9 @@ export const reactiveInstall = {
             // 合并watch选项
             $options.watch = $options.watch || {};
             if (isObject(reactiveIns._watch)) $options.watch = Object.assign($options.watch, reactiveIns._watch);
+            // 合并provide选项
+            $options.provide = $options.provide || {};
+            if (isObject(reactiveIns._provide)) $options.provide = Object.assign($options.provide, reactiveIns._provide);
           });
           __$reactiveIns = [];
           __$targetVM = null;
