@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.8](https://github.com/shayeLee/vue-class-composition/compare/v0.0.7...v0.0.8) (2020-07-14)
+
+
+### Features
+
+* $registerProvide ([6d7124f](https://github.com/shayeLee/vue-class-composition/commit/6d7124fada7b5b114573d20fa33dbe7e5c1b43ff))
+
 ### [0.0.7](https://github.com/shayeLee/vue-class-composition/compare/v0.0.6...v0.0.7) (2020-06-23)
 
 
