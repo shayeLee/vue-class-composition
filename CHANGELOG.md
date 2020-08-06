@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.9](https://github.com/shayeLee/vue-class-composition/compare/v0.0.8...v0.0.9) (2020-08-06)
+
+
+### Features
+
+* $memorizeState ([329ddcd](https://github.com/shayeLee/vue-class-composition/commit/329ddcdd4efeb3374fa881d4a39ad4044b0bfe99))
+
 ### [0.0.8](https://github.com/shayeLee/vue-class-composition/compare/v0.0.7...v0.0.8) (2020-07-14)
 
 
