@@ -10,17 +10,26 @@ export default {
     {
       file: 'esm/vue-class-composition.js',
       format: 'esm',
-      name: 'vueClassComposition'
+      name: 'vueClassComposition',
+      globals: {
+        'vue': 'Vue'
+      }
     },
     {
       file: 'lib/vue-class-composition.js',
       format: 'cjs',
-      name: 'vueClassComposition'
+      name: 'vueClassComposition',
+      globals: {
+        'vue': 'Vue'
+      }
     },
     {
       file: 'umd/vue-class-composition.js',
       format: 'umd',
-      name: 'vueClassComposition'
+      name: 'vueClassComposition',
+      globals: {
+        'vue': 'Vue'
+      }
     }
   ],
   plugins: [

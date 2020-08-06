@@ -1,3 +1,4 @@
+import Vue from 'vue';
 import { isObject, isArray } from './utils';
 
 let __$reactiveIns = [];
@@ -6,12 +7,18 @@ let __$Vue = null;
 
 export class Reactive {
   $target = null;
+  _memorized = false;
   _watch = {};
   _computed = {};
   _provide = {};
 
-  constructor(record: boolean = true) {
+  constructor(record = true) {
     this.$initMethods(record);
+    this._memorized = __$targetVM === null;
+    // console.log('this._memorized: ', this._memorized);
+    if (this._memorized && record) {
+      this.$memorizeState();
+    }
   }
 
   $initMethods(record: boolean = true) {
@@ -82,6 +89,21 @@ export class Reactive {
     });
   }
 
+  $memorizeState() {
+    const reactiveIns = this;
+    __$Vue = Vue;
+    const memorizedState = __$Vue.observable({});
+    Object.keys(reactiveIns).forEach((key) => {
+      if (
+        (reactiveIns[key] instanceof Function) ||
+        key === '$target' ||
+        key.startsWith('_')
+      ) return;
+
+      this.$set(memorizedState, key, reactiveIns[key]);
+    });
+  }
+
   $set(target, key, value) {
     return __$Vue.set(target, key, value);
   }
@@ -133,7 +155,12 @@ export class Reactive {
         this[key] = reactive[key];
       });
       childFn.apply(this, arguments);
-      reactive.$initMethods.call(this, true);
+
+      this._memorized = __$targetVM === null;
+      reactive.$initMethods.call(this, !reactive._memorized);
+      if (this._memorized) {
+        this.$memorizeState();
+      }
     }
 
     const protoKeys = Object.getOwnPropertyNames(Reactive.prototype);
@@ -190,6 +217,7 @@ export const reactiveInstall = {
             const props = fn(propsData, $vm);
             Object.keys(props).forEach(key => {
               if (props[key] instanceof Function) {
+                // 新增组件方法
                 $vm[key] = props[key];
               } else {
                 // 新增data数据
