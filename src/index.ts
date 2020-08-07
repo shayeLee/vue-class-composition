@@ -101,6 +101,14 @@ export class Reactive {
       ) return;
 
       this.$set(memorizedState, key, reactiveIns[key]);
+      Object.defineProperty(reactiveIns, key, {
+        get() {
+          return memorizedState[key];
+        },
+        set(val) {
+          __$Vue.set(memorizedState, key, val);
+        }
+      });
     });
   }
 
@@ -115,13 +123,13 @@ export class Reactive {
   $watch(key: string, watchHandler: Function | { handler: Function, deep?: boolean, immediate?: boolean }) {
     const self = this;
     if (watchHandler instanceof Function) {
-      this._watch[key] = function() {
+      this._watch[key] = function () {
         watchHandler.apply(self, arguments);
       }
     } else if (isObject(watchHandler)) {
       const { handler } = watchHandler;
       if (handler instanceof Function) {
-        watchHandler.handler = function() {
+        watchHandler.handler = function () {
           handler.apply(self, arguments);
         }
       }
@@ -132,7 +140,7 @@ export class Reactive {
   $computed(key: string, computedHandler: Function) {
     const self = this;
     if (computedHandler instanceof Function) {
-      this._computed[key] = function() {
+      this._computed[key] = function () {
         return computedHandler.apply(self, arguments);
       }
       Object.defineProperty(self, key, {
