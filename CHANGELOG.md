@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.11](https://github.com/shayeLee/vue-class-composition/compare/v0.0.10...v0.0.11) (2020-10-15)
+
+
+### Features
+
+* 不覆盖methos选项中定义的方法 ([76e6b58](https://github.com/shayeLee/vue-class-composition/commit/76e6b585a095ed9c5e9d28132d7180eaac419f94))
+
 ### [0.0.10](https://github.com/shayeLee/vue-class-composition/compare/v0.0.9...v0.0.10) (2020-08-07)
 
 ### [0.0.9](https://github.com/shayeLee/vue-class-composition/compare/v0.0.8...v0.0.9) (2020-08-06)
