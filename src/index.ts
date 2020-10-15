@@ -226,7 +226,7 @@ export const reactiveInstall = {
             Object.keys(props).forEach(key => {
               if (props[key] instanceof Function) {
                 // 新增组件方法
-                $vm[key] = props[key];
+                if ($vm[key] !== undefined) $vm[key] = props[key];
               } else {
                 // 新增data数据
                 $options.data[key] = props[key];
